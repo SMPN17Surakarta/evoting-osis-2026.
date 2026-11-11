@@ -104,7 +104,9 @@
       font-size: 13px;
       color: #777;
     }
+    /* Tombol admin disembunyikan secara default untuk semua komputer */
     .btn-admin {
+      display: none;
       background: none;
       border: 1px solid #ccc;
       color: #666;
@@ -112,12 +114,11 @@
       border-radius: 5px;
       cursor: pointer;
       font-size: 12px;
-      margin: 0 5px;
+      margin: 10px auto 0;
     }
     .btn-admin:hover {
       background-color: #e2e6ea;
     }
-    /* Gaya untuk Panel Hasil Panitia */
     #admin-panel {
       display: none;
       background: white;
@@ -183,16 +184,38 @@
       <p><strong>Total Suara Masuk:</strong> <span id="count-total">0</span> Suara</p>
     </div>
     <button class="btn-vote" style="background-color: #004085; margin-bottom: 10px;" onclick="closeAdmin()">Kembali ke Bilik Suara</button>
-    <button class="btn-admin" style="color: #dc3545; border-color: #dc3545;" onclick="resetVotes()">Reset Semua Suara (0)</button>
+    <button class="btn-admin" style="display: inline-block; color: #dc3545; border-color: #dc3545;" onclick="resetVotes()">Reset Semua Suara (0)</button>
+    <br><br>
+    <button class="btn-admin" style="display: inline-block; font-size: 11px;" onclick="deactivateAdminDevice()">Hapus Izin Admin dari Komputer Ini</button>
   </div>
 
   <footer>
-    Panitia Pemilihan OSIS SMPN 17 Surakarta &copy; 2026 <br><br>
-    <button class="btn-admin" onclick="openAdmin()">Menu Panitia (Hasil Suara)</button>
+    Panitia Pemilihan OSIS SMPN 17 Surakarta &copy; 2026
+    <!-- Tombol ini hanya akan muncul di komputer yang sudah diaktifkan sebagai Admin -->
+    <button id="btn-menu-panitia" class="btn-admin" onclick="openAdmin()">Menu Panitia (Hasil Suara)</button>
   </footer>
 
   <script>
-    const PIN_PANITIA = "1234"; // Ubah PIN sesuai keinginan panitia
+    const PIN_PANITIA = "1234"; // Ganti dengan PIN rahasia panitia
+
+    // Cek apakah komputer ini membuka link dengan parameter ?admin=aktif
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'aktif') {
+      let verifikasi = prompt("Aktivasi Komputer Admin: Masukkan PIN Panitia:");
+      if (verifikasi === PIN_PANITIA) {
+        localStorage.setItem('komputer_admin_osis', 'true');
+        alert("Berhasil! Komputer ini sekarang terdaftar sebagai Komputer Admin.");
+        // Bersihkan tulisan ?admin=aktif dari address bar agar tidak terlihat orang lain
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (verifikasi !== null) {
+        alert("PIN salah! Komputer ini tidak diizinkan menjadi Admin.");
+      }
+    }
+
+    // Tampilkan tombol Menu Panitia HANYA jika komputer ini sudah terdaftar sebagai Admin
+    if (localStorage.getItem('komputer_admin_osis') === 'true') {
+      document.getElementById('btn-menu-panitia').style.display = 'block';
+    }
 
     let votes = {
       1: parseInt(localStorage.getItem('vote_paslon1')) || 0,
@@ -210,6 +233,7 @@
     }
 
     function openAdmin() {
+      // Lapisan keamanan ganda: tetap meminta PIN saat tombol diklik
       let inputPin = prompt("Masukkan PIN Panitia untuk melihat hasil:");
       if (inputPin === PIN_PANITIA) {
         document.getElementById('count-1').innerText = votes[1];
@@ -234,10 +258,50 @@
         votes = { 1: 0, 2: 0 };
         localStorage.setItem('vote_paslon1', 0);
         localStorage.setItem('vote_paslon2', 0);
-        openAdmin(); // Refresh tampilan angka
+        openAdmin();
         alert("Data suara berhasil di-reset ke 0.");
       }
     }
+
+    function deactivateAdminDevice() {
+      if (confirm("Hapus hak akses admin dari komputer ini? Tombol Menu Panitia akan disembunyikan.")) {
+        localStorage.removeItem('komputer_admin_osis');
+        location.reload();
+      }
+    }
   </script>
+// Cek atau daftarkan Admin Tunggal di komputer ini
+function bukaMenuPanitia() {
+  const adminTerdaftar = localStorage.getItem("admin_osis_2026");
+
+  // 1. Jika komputer ini belum pernah didaftarkan sebagai admin
+  if (!adminTerdaftar) {
+    const buatPin = prompt("Daftarkan Komputer Ini sebagai Admin Tunggal.\nBuat PIN Admin baru:");
+    if (buatPin && buatPin.trim() !== "") {
+      localStorage.setItem("admin_osis_2026", buatPin.trim());
+      alert("Komputer ini berhasil dikunci sebagai Admin Tunggal!");
+      tampilkanRekapSuara();
+    }
+    return;
+  }
+
+  // 2. Jika komputer sudah terdaftar, minta verifikasi PIN
+  const inputPin = prompt("Masukkan PIN Admin Panitia:");
+  if (inputPin === adminTerdaftar) {
+    tampilkanRekapSuara();
+  } else {
+    alert("PIN salah! Akses ditolak.");
+  }
+}
+
+// Fungsi menghapus izin admin dari komputer ini
+function hapusIzinAdmin() {
+  const konfirmasi = confirm("Yakin ingin menghapus izin admin dari komputer ini?");
+  if (konfirmasi) {
+    localStorage.removeItem("admin_osis_2026");
+    alert("Izin admin telah dihapus dari perangkat ini.");
+    location.reload();
+  }
+}
 </body>
 </html>
