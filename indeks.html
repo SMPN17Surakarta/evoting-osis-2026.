@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Voting OSIS SMPN 17 Surakarta 2026</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7f6;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background-color: #004085;
+      color: white;
+      padding: 25px 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      text-transform: uppercase;
+    }
+    h2 {
+      margin: 10px 0 0;
+      font-size: 18px;
+      font-weight: normal;
+      color: #d4edda;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      flex: 1;
+    }
+    .candidates {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      padding: 20px;
+      width: 320px;
+      transition: transform 0.3s ease;
+      border-top: 5px solid #004085;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card img {
+      width: 100%;
+      height: 320px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      object-fit: cover;
+      background-color: #e9ecef;
+    }
+    .paslon-number {
+      font-size: 26px;
+      font-weight: 900;
+      color: #004085;
+      margin: 15px 0 10px;
+    }
+    .names {
+      font-size: 16px;
+      margin-bottom: 25px;
+      color: #333;
+      line-height: 1.5;
+      text-align: left;
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 5px;
+    }
+    .btn-vote {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 15px 20px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.1s;
+    }
+    .btn-vote:hover {
+      background-color: #218838;
+    }
+    .btn-vote:active {
+      transform: scale(0.98);
+    }
+    footer {
+      padding: 20px;
+      font-size: 13px;
+      color: #777;
+    }
+    .btn-admin {
+      background: none;
+      border: 1px solid #ccc;
+      color: #666;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      margin: 0 5px;
+    }
+    .btn-admin:hover {
+      background-color: #e2e6ea;
+    }
+    /* Gaya untuk Panel Hasil Panitia */
+    #admin-panel {
+      display: none;
+      background: white;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      border-top: 5px solid #dc3545;
+    }
+    .result-box {
+      font-size: 18px;
+      margin: 15px 0;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>E-VOTING PEMILIHAN KETUA & WAKIL KETUA OSIS</h1>
+    <h2>SMP NEGERI 17 KOTA SURAKARTA TAHUN 2026</h2>
+  </header>
+
+  <div class="container" id="voting-page">
+    <h3 style="color: #555; font-size: 22px;">Silakan Pilih Pasangan Calon Anda</h3>
+    
+    <div class="candidates">
+      <!-- Paslon 1 -->
+      <div class="card">
+        <img src="1.jpg" alt="Foto Paslon 1">
+        <div class="paslon-number">PASLON 01</div>
+        <div class="names">
+          <strong>Ketua:</strong> Alya Citraloka Prambanitya<br>
+          <strong>Wakil:</strong> Juanita Dewi Saputra
+        </div>
+        <button class="btn-vote" onclick="castVote(1)">COBLOS PASLON 1</button>
+      </div>
+
+      <!-- Paslon 2 -->
+      <div class="card">
+        <img src="2.jpg" alt="Foto Paslon 2">
+        <div class="paslon-number">PASLON 02</div>
+        <div class="names">
+          <strong>Ketua:</strong> Mufida Rizka Musyafa<br>
+          <strong>Wakil:</strong> Latifa Nadira Hafidzah
+        </div>
+        <button class="btn-vote" onclick="castVote(2)">COBLOS PASLON 2</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel Rekap Suara Khusus Panitia -->
+  <div id="admin-panel">
+    <h3 style="color: #dc3545; margin-top: 0;">REKAPITULASI SUARA SEMENTARA</h3>
+    <div class="result-box">
+      <p><strong>PASLON 01 (Alya & Juanita):</strong> <span id="count-1">0</span> Suara</p>
+      <p><strong>PASLON 02 (Mufida & Latifa):</strong> <span id="count-2">0</span> Suara</p>
+      <hr>
+      <p><strong>Total Suara Masuk:</strong> <span id="count-total">0</span> Suara</p>
+    </div>
+    <button class="btn-vote" style="background-color: #004085; margin-bottom: 10px;" onclick="closeAdmin()">Kembali ke Bilik Suara</button>
+    <button class="btn-admin" style="color: #dc3545; border-color: #dc3545;" onclick="resetVotes()">Reset Semua Suara (0)</button>
+  </div>
+
+  <footer>
+    Panitia Pemilihan OSIS SMPN 17 Surakarta &copy; 2026 <br><br>
+    <button class="btn-admin" onclick="openAdmin()">Menu Panitia (Hasil Suara)</button>
+  </footer>
+
+  <script>
+    const PIN_PANITIA = "1234"; // Ubah PIN sesuai keinginan panitia
+
+    let votes = {
+      1: parseInt(localStorage.getItem('vote_paslon1')) || 0,
+      2: parseInt(localStorage.getItem('vote_paslon2')) || 0
+    };
+
+    function castVote(paslon) {
+      let confirmVote = confirm("Apakah Anda yakin ingin mencoblos PASLON 0" + paslon + "?");
+      if (confirmVote) {
+        votes[paslon]++;
+        localStorage.setItem('vote_paslon' + paslon, votes[paslon]);
+        alert("Terima kasih! Suara Anda untuk PASLON 0" + paslon + " telah berhasil disimpan.");
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function openAdmin() {
+      let inputPin = prompt("Masukkan PIN Panitia untuk melihat hasil:");
+      if (inputPin === PIN_PANITIA) {
+        document.getElementById('count-1').innerText = votes[1];
+        document.getElementById('count-2').innerText = votes[2];
+        document.getElementById('count-total').innerText = votes[1] + votes[2];
+        
+        document.getElementById('voting-page').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+      } else if (inputPin !== null) {
+        alert("PIN salah! Akses ditolak.");
+      }
+    }
+
+    function closeAdmin() {
+      document.getElementById('admin-panel').style.display = 'none';
+      document.getElementById('voting-page').style.display = 'block';
+    }
+
+    function resetVotes() {
+      let confirmReset = confirm("PERINGATAN! Semua data suara akan dihapus menjadi 0. Lanjutkan?");
+      if (confirmReset) {
+        votes = { 1: 0, 2: 0 };
+        localStorage.setItem('vote_paslon1', 0);
+        localStorage.setItem('vote_paslon2', 0);
+        openAdmin(); // Refresh tampilan angka
+        alert("Data suara berhasil di-reset ke 0.");
+      }
+    }
+  </script>
+</body>
+</html>
